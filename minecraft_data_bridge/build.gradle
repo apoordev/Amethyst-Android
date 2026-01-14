@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+jar {
+    archiveBaseName.set("minecraft_data_bridge")
+    manifest {
+        attributes("Manifest-Version": "1.0",
+                "Premain-Class": "net.kdt.pojavlaunch.bridge.DataBridgeAgent")
+    }
+    doLast {
+        File versionFile = file("../app_pojavlauncher/src/main/assets/components/minecraft_data_bridge/version")
+        if (gitUsed()) {
+            versionFile.write(getGitHash(project.projectDir))
+        } else {
+            // Fallback: use timestamp as version
+            versionFile.write("1.0." + System.currentTimeMillis())
+        }
+    }
+    destinationDirectory.set(file("../app_pojavlauncher/src/main/assets/components/minecraft_data_bridge/"))
+}

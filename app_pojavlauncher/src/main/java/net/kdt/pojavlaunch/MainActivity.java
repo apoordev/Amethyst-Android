@@ -46,6 +46,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.kdt.LoggerView;
 
 import net.kdt.pojavlaunch.customcontrols.ControlButtonMenuListener;
+import net.kdt.pojavlaunch.multidisplay.SecondaryDisplay;
+import net.kdt.pojavlaunch.multidisplay.bridge.ReflectionBridge;
 import net.kdt.pojavlaunch.customcontrols.ControlData;
 import net.kdt.pojavlaunch.customcontrols.ControlDrawerData;
 import net.kdt.pojavlaunch.customcontrols.ControlJoystickData;
@@ -104,6 +106,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     private GameService.LocalBinder mServiceBinder;
 
     private QuickSettingSideDialog mQuickSettingSideDialog;
+    private SecondaryDisplay mSecondaryDisplay;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -224,6 +227,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             JMinecraftVersionList.Version mVersionInfo = Tools.getVersionInfo(version);
             isInputStackCall = mVersionInfo.arguments != null;
             CallbackBridge.nativeSetUseInputStackQueue(isInputStackCall);
+
+            // Initialize ReflectionBridge to write bridge_mappings.txt for the Java agent
+            ReflectionBridge bridge = new ReflectionBridge();
+            bridge.initialize(version);
+            Log.i(TAG, "Initialized ReflectionBridge for version " + version);
 
             Tools.getDisplayMetrics(this);
             windowWidth = Tools.getDisplayFriendlyRes(currentDisplayMetrics.widthPixels, 1f);
@@ -349,6 +357,12 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         CallbackBridge.removeGrabListener(touchpad);
         CallbackBridge.removeGrabListener(minecraftGLView);
         ContextExecutor.clearActivity();
+
+        // Release secondary display
+        if (mSecondaryDisplay != null) {
+            mSecondaryDisplay.release();
+            mSecondaryDisplay = null;
+        }
     }
 
     @Override
@@ -641,6 +655,18 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         mServiceBinder = localBinder;
         minecraftGLView.start(localBinder.isActive, touchpad);
         localBinder.isActive = true;
+
+        // Initialize secondary display support
+        if (mSecondaryDisplay == null) {
+            mSecondaryDisplay = new SecondaryDisplay(this);
+
+            // Get the version ID for secondary display initialization
+            String version = getIntent().getStringExtra(INTENT_MINECRAFT_VERSION);
+            if (version == null) {
+                version = minecraftProfile.lastVersionId;
+            }
+            mSecondaryDisplay.initialize(version);
+        }
     }
 
     @Override

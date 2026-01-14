@@ -35,6 +35,7 @@ typedef struct  {
 
 struct pojav_environ_s {
     struct ANativeWindow* pojavWindow;
+    struct ANativeWindow* secondaryWindow;
     basic_render_window_t* mainWindowBundle;
     int config_renderer;
     bool force_vsync;

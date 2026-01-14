@@ -88,6 +88,7 @@ public class AsyncAssetManager {
                 unpackComponent(ctx, "arc_dns_injector", true);
                 unpackComponent(ctx, "lwjgl2_methods_injector", true);
                 unpackComponent(ctx, "forge_installer", true);
+                unpackComponent(ctx, "minecraft_data_bridge", true);
             } catch (IOException e) {
                 Log.e("AsyncAssetManager", "Failed to unpack components !",e );
             }

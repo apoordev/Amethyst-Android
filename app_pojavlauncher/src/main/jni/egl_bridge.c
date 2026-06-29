@@ -93,6 +93,31 @@ Java_net_kdt_pojavlaunch_utils_JREUtils_releaseBridgeWindow(ABI_COMPAT JNIEnv *e
     ANativeWindow_release(pojav_environ->pojavWindow);
 }
 
+// Secondary display support
+JNIEXPORT void JNICALL
+Java_net_kdt_pojavlaunch_utils_JREUtils_setupSecondaryBridgeWindow(JNIEnv* env, ABI_COMPAT jclass clazz, jobject surface) {
+    if (surface == NULL) {
+        printf("SecondaryDisplay: surface is NULL\n");
+        return;
+    }
+    pojav_environ->secondaryWindow = ANativeWindow_fromSurface(env, surface);
+    if (pojav_environ->secondaryWindow != NULL) {
+        ANativeWindow_acquire(pojav_environ->secondaryWindow);
+        printf("SecondaryDisplay: Secondary window setup complete, size: %dx%d\n",
+               ANativeWindow_getWidth(pojav_environ->secondaryWindow),
+               ANativeWindow_getHeight(pojav_environ->secondaryWindow));
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_net_kdt_pojavlaunch_utils_JREUtils_releaseSecondaryBridgeWindow(ABI_COMPAT JNIEnv *env, ABI_COMPAT jclass clazz) {
+    if (pojav_environ->secondaryWindow != NULL) {
+        ANativeWindow_release(pojav_environ->secondaryWindow);
+        pojav_environ->secondaryWindow = NULL;
+        printf("SecondaryDisplay: Secondary window released\n");
+    }
+}
+
 EXTERNAL_API void* pojavGetCurrentContext() {
     return br_get_current();
 }

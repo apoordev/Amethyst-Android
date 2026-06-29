@@ -339,8 +339,10 @@ public class JREUtils {
 
         // Some phones are not using the right number of cores, fix that
         userArgs.add("-XX:ActiveProcessorCount=" + java.lang.Runtime.getRuntime().availableProcessors());
-        // Adds/changes methods for compatibility
-        userArgs.add("-javaagent:"+new File(Tools.DIR_DATA,"methods_injector_agent/methods_injector_agent.jar").getAbsolutePath());
+        // Adds missing lwjgl2 openal methods
+        userArgs.add("-javaagent:"+new File(Tools.DIR_DATA,"lwjgl2_methods_injector/lwjgl2_methods_injector.jar").getAbsolutePath());
+        // Data bridge for secondary display - passes DIR_DATA as argument
+        userArgs.add("-javaagent:"+new File(Tools.DIR_DATA,"minecraft_data_bridge/minecraft_data_bridge.jar").getAbsolutePath()+"="+Tools.DIR_DATA);
 
         userArgs.addAll(JVMArgs);
         activity.runOnUiThread(() -> Toast.makeText(activity, activity.getString(R.string.autoram_info_msg,LauncherPreferences.PREF_RAM_ALLOCATION), Toast.LENGTH_SHORT).show());
@@ -553,6 +555,9 @@ public class JREUtils {
     public static native void setLdLibraryPath(String ldLibraryPath);
     public static native void setupBridgeWindow(Object surface);
     public static native void releaseBridgeWindow();
+    // Secondary display support
+    public static native void setupSecondaryBridgeWindow(Object surface);
+    public static native void releaseSecondaryBridgeWindow();
     public static native void initializeHooks();
     public static native void setupExitMethod(Context context);
     // Obtain AWT screen pixels to render on Android SurfaceView
